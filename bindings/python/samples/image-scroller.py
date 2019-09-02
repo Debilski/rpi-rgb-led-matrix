@@ -12,23 +12,25 @@ class ImageScroller(SampleBase):
     def run(self):
         if not 'image' in self.__dict__:
             self.image = Image.open(self.args.image).convert('RGB')
-        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+#        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+        image = self.image # .resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
 
         double_buffer = self.matrix.CreateFrameCanvas()
-        img_width, img_height = self.image.size
+        img_width, img_height = image.size
 
         # let's scroll
         xpos = 0
         while True:
             xpos += 1
-            if (xpos > img_width):
+            if (xpos >= 32):
                 xpos = 0
 
-            double_buffer.SetImage(self.image, -xpos)
-            double_buffer.SetImage(self.image, -xpos + img_width)
+            double_buffer.Clear()
+            double_buffer.SetImage(image, -xpos)
+            double_buffer.SetImage(image, -xpos + 32)
 
             double_buffer = self.matrix.SwapOnVSync(double_buffer)
-            time.sleep(0.01)
+            time.sleep(0.1)
 
 # Main function
 # e.g. call with
