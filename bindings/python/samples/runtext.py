@@ -18,12 +18,12 @@ class Tick:
         self._t_start = time.time()
 
     def tick(self):
-        return time.time() - self._t_start
+        return 1000 * (time.time() - self._t_start)
 
     def sleep_to_next_msec(self, msec):
         """ Sleep until the next modulo. """
         remainder = msec - (self.tick() % msec)
-        time.sleep(remainder)
+        time.sleep(remainder / 1000.)
 
 
 class Animation:
@@ -40,12 +40,17 @@ class RunText(Animation):
 
 class FullFlicker(Animation):
     def draw(self, canvas, tick):
-        if tick % 500 > 250:
+        if tick % 100 > 30:
             canvas.Fill(255, 255, 255)
         else:
             canvas.Clear()
+        if tick > 1000:
+            canvas.Clear()
+        if tick > 1200:
+            return True
 
 def parse_command(command):
+    print(command)
     if command == '/flicker':
         return FullFlicker()
 
@@ -86,7 +91,8 @@ class RunText(SampleBase):
 
             if not current_animation:
                 try:
-                    current_animation = animation_queue.get(block=False)
+                    current_animation = animation_queue.get(block=False, timeout=0)
+                    tick.reset()
                 except queue.Empty:
                     pass
 #               if my_text.startswith('/'):
@@ -108,7 +114,9 @@ class RunText(SampleBase):
             if current_animation:
                 offscreen_canvas.Clear()
 
-                current_animation.draw(offscreen_canvas, tick.tick())
+                ret = current_animation.draw(offscreen_canvas, tick.tick())
+                if ret:
+                    current_animation = None
     #            len = graphics.DrawText(offscreen_canvas, font, pos, 9, col, my_text)
     #            pos -= 1
     #            if (pos + len < 0):
