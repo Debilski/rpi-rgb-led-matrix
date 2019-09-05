@@ -105,14 +105,14 @@ class RunText(SampleBase):
 #                           col = textColor
 #               else:
 #                   col = textColor
+            else:
+                offscreen_canvas.Clear()
 
-            offscreen_canvas.Clear()
-
-            current_animation.draw(offscreen_canvas, tick.tick())
-#            len = graphics.DrawText(offscreen_canvas, font, pos, 9, col, my_text)
-#            pos -= 1
-#            if (pos + len < 0):
-#                pos = offscreen_canvas.width
+                current_animation.draw(offscreen_canvas, tick.tick())
+    #            len = graphics.DrawText(offscreen_canvas, font, pos, 9, col, my_text)
+    #            pos -= 1
+    #            if (pos + len < 0):
+    #                pos = offscreen_canvas.width
 
             tick.sleep_to_next_msec(50)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
