@@ -39,7 +39,7 @@ class RunText(Animation):
         super().__init__(*args, **kwargs)
 
 class FullFlicker(Animation):
-    def draw(canvas, tick):
+    def draw(self, canvas, tick):
         if tick % 500 > 250:
             canvas.Fill(255, 255, 255)
         else:
