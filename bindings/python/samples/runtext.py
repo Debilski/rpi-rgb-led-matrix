@@ -105,7 +105,7 @@ class RunText(SampleBase):
 #                           col = textColor
 #               else:
 #                   col = textColor
-            else:
+            if current_animation:
                 offscreen_canvas.Clear()
 
                 current_animation.draw(offscreen_canvas, tick.tick())
