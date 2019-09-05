@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # Display a runtext with double-buffering.
-from samplebase import SampleBase
-from rgbmatrix import graphics
 import time
 
-
 import zmq
+
+from rgbmatrix import graphics
+from samplebase import SampleBase
+
+
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)

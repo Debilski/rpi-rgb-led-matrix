@@ -1,7 +1,7 @@
 import json
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import zmq
 
@@ -43,4 +43,3 @@ async def my_event_handler(event):
 
 client.start()
 client.run_until_disconnected()
-
