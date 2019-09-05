@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# Display a runtext with double-buffering.
+
+import queue
 import time
 
 import zmq
@@ -7,6 +8,46 @@ import zmq
 from rgbmatrix import graphics
 from samplebase import SampleBase
 
+animation_queue = queue.Queue(maxsize=10)
+
+class Tick:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self._t_start = time.time()
+
+    def tick(self):
+        return time.time() - self._t_start
+
+    def sleep_to_next_msec(self, msec):
+        """ Sleep until the next modulo. """
+        remainder = msec - (self.tick() % msec)
+        time.sleep(remainder)
+
+
+class Animation:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def step(self):
+        """ Execute step and return True when the animation is finished. """
+        return True
+
+class RunText(Animation):
+    def __init__(self, text, color, num_times, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+class FullFlicker(Animation):
+    def draw(canvas, tick):
+        if tick % 500 > 250:
+            canvas.Fill(255, 255, 255)
+        else:
+            canvas.Clear()
+
+def parse_command(command):
+    if command == '/flicker':
+        return FullFlicker()
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
@@ -33,35 +74,47 @@ class RunText(SampleBase):
 
         col = textColor
 
+        tick = Tick()
+
+        current_animation = None
+
         while True:
             socks = dict(self.poller.poll(5))
             if self.socket in socks and socks[self.socket] == zmq.POLLIN:
                 my_text = self.socket.recv_json()
-                if my_text.startswith('/'):
-                    if my_text == '/stop':
-                        my_text = ''
-                    if my_text.startswith('/col'):
-                        col_regex = r'''/col\((\d+,\d+,\d+)\) (.*)'''
-                        import re
-                        res = re.search(col_regex, my_text)
-                        try:
-                            col = graphics.Color(*list(map(int, res.group(1).split(","))))
-                            my_text = res.group(2)
-                        except Exception as e:
-                            print(e)
-                            my_text = ''
-                            col = textColor
-                else:
-                    col = textColor
+                animation_queue.put(parse_command(my_text))
 
+            if not current_animation:
+                try:
+                    current_animation = animation_queue.get(block=False)
+                except queue.Empty:
+                    pass
+#               if my_text.startswith('/'):
+#                   if my_text == '/stop':
+#                       my_text = ''
+#                   if my_text.startswith('/col'):
+#                       col_regex = r'''/col\((\d+,\d+,\d+)\) (.*)'''
+#                       import re
+#                       res = re.search(col_regex, my_text)
+#                       try:
+#                           col = graphics.Color(*list(map(int, res.group(1).split(","))))
+#                           my_text = res.group(2)
+#                       except Exception as e:
+#                           print(e)
+#                           my_text = ''
+#                           col = textColor
+#               else:
+#                   col = textColor
 
             offscreen_canvas.Clear()
-            len = graphics.DrawText(offscreen_canvas, font, pos, 9, col, my_text)
-            pos -= 1
-            if (pos + len < 0):
-                pos = offscreen_canvas.width
 
-            time.sleep(0.05)
+            current_animation.draw(offscreen_canvas, tick.tick())
+#            len = graphics.DrawText(offscreen_canvas, font, pos, 9, col, my_text)
+#            pos -= 1
+#            if (pos + len < 0):
+#                pos = offscreen_canvas.width
+
+            tick.sleep_to_next_msec(50)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
 
 
