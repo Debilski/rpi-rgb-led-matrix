@@ -42,6 +42,7 @@ class RunText(Animation):
         self.font.LoadFont("../../../fonts/clR6x12.bdf")
         self.textColor = graphics.Color(*color)
         self.pos = None
+        self.num_times = num_times
 
     def draw(self, canvas, tick):
         if self.pos is None:
@@ -49,6 +50,9 @@ class RunText(Animation):
         l = graphics.DrawText(canvas, self.font, self.pos, 8, self.textColor, self.text)
         self.pos -= 1
         if (self.pos + l < 0):
+            self.num_times -= 1
+            if self.num_times == 0:
+                return True
             self.pos = canvas.width
 
 
