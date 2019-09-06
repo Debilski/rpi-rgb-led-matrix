@@ -140,13 +140,14 @@ class Animator(SampleBase):
                 parsed = parse_command(my_text)
                 try:
                     for p in parsed:
+                        print(p)
                         animation_queue.put(p)
                 except queue.Full:
                     print("Full queue")
 
             if not current_animation:
                 try:
-                    anim = animation_queue.get(block=False, timeout=0)
+                    current_animation = animation_queue.get(block=False, timeout=0)
                     tick.reset()
                 except queue.Empty:
                     pass
