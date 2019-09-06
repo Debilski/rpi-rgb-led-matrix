@@ -71,8 +71,15 @@ def parse_command(command):
     print(command)
     if command == '/flicker':
         return FullFlicker()
-    if command.startswith('/text'):
+    if command.startswith('/text '):
         return RunText(command[5:], (200, 200, 0), 1)
+    if command.startswith('/rep '):
+        rep, num, *rest = command.split()
+        try:
+            return RunText(' '.join(rest), (250, 0, 250), int(num))
+        except:
+            return FullFlicker()
+
 
 class Animator(SampleBase):
     def __init__(self, *args, **kwargs):
