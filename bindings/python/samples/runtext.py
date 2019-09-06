@@ -46,7 +46,7 @@ class RunText(Animation):
     def draw(self, canvas, tick):
         if self.pos is None:
             self.pos = canvas.width
-        l = graphics.DrawText(canvas, font, pos, 8, col, my_text)
+        l = graphics.DrawText(canvas, self.font, self.pos, 8, self.textColor, self.text)
         self.pos -= 1
         if (self.pos + l < 0):
             self.pos = canvas.width
@@ -70,9 +70,9 @@ def parse_command(command):
     if command.startswith('/text'):
         return RunText(command[5:], (200, 200, 0), 1)
 
-class RunText(SampleBase):
+class Animator(SampleBase):
     def __init__(self, *args, **kwargs):
-        super(RunText, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
         self.parser.add_argument("--color", help="Comma separated RGB value", default="120,30,30")
         self.parser.add_argument("--socket", help="Socket")
@@ -136,6 +136,6 @@ class RunText(SampleBase):
 
 # Main function
 if __name__ == "__main__":
-    run_text = RunText()
+    run_text = Animator()
     if (not run_text.process()):
         run_text.print_help()
