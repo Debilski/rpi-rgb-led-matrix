@@ -67,18 +67,49 @@ class FullFlicker(Animation):
         if tick > 1200:
             return True
 
+orange = (255, 150, 0)
+pink = (155, 0, 144)
+yellow = (255, 255, 0)
+blue = (0, 0, 255)
+green = (0, 255, 0)
+
 def parse_command(command):
     print(command)
     if command == '/flicker':
-        return FullFlicker()
+        return [FullFlicker()]
     if command.startswith('/text '):
-        return RunText(command[5:], (200, 200, 0), 1)
+        return [RunText(command[5:], (200, 200, 0), 1)]
     if command.startswith('/rep '):
         rep, num, *rest = command.split()
         try:
-            return RunText(' '.join(rest), (250, 0, 250), int(num))
+            return [RunText(' '.join(rest), (250, 0, 250), int(num))]
         except:
-            return FullFlicker()
+            return [FullFlicker()]
+    if 'to group0:' in command:
+        return [
+            FullFlicker(),
+            RunText(command, green, 1)
+        ]
+    if 'to group1:' in command:
+        return [
+            FullFlicker(),
+            RunText(command, blue, 1)
+        ]
+    if 'to group2:' in command:
+        return [
+            FullFlicker(),
+            RunText(command, orange, 1)
+        ]
+    if 'to group3:' in command:
+        return [
+            FullFlicker(),
+            RunText(command, yellow, 1)
+        ]
+    if 'to group4:' in command:
+        return [
+            FullFlicker(),
+            RunText(command, pink, 1)
+        ]
 
 
 class Animator(SampleBase):
@@ -106,11 +137,16 @@ class Animator(SampleBase):
             socks = dict(self.poller.poll(5))
             if self.socket in socks and socks[self.socket] == zmq.POLLIN:
                 my_text = self.socket.recv_json()
-                animation_queue.put(parse_command(my_text))
+                parsed = parse_command(my_text)
+                try:
+                    for p in parsed:
+                        animation_queue.put(p)
+                except queue.Full:
+                    print("Full queue")
 
             if not current_animation:
                 try:
-                    current_animation = animation_queue.get(block=False, timeout=0)
+                    anim = animation_queue.get(block=False, timeout=0)
                     tick.reset()
                 except queue.Empty:
                     pass
