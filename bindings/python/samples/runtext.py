@@ -37,6 +37,20 @@ class Animation:
 class RunText(Animation):
     def __init__(self, text, color, num_times, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.text = text
+        self.font = graphics.Font()
+        self.font.LoadFont("../../../fonts/clR6x12.bdf")
+        self.textColor = graphics.Color(*color)
+        self.pos = None
+
+    def draw(self, canvas, tick):
+        if self.pos is None:
+            self.pos = canvas.width
+        l = graphics.DrawText(canvas, font, pos, 8, col, my_text)
+        self.pos -= 1
+        if (self.pos + l < 0):
+            self.pos = canvas.width
+
 
 class FullFlicker(Animation):
     def draw(self, canvas, tick):
@@ -53,6 +67,8 @@ def parse_command(command):
     print(command)
     if command == '/flicker':
         return FullFlicker()
+    if command.startswith('/text'):
+        return RunText(command[5:], (200, 200, 0), 1)
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
@@ -70,14 +86,6 @@ class RunText(SampleBase):
         self.poller.register(self.socket, zmq.POLLIN)
 
         offscreen_canvas = self.matrix.CreateFrameCanvas()
-        font = graphics.Font()
-        font.LoadFont("../../../fonts/clR6x12.bdf")
-        textColor = graphics.Color(*list(map(int, self.args.color.split(","))))
-        pos = offscreen_canvas.width
-
-        my_text = ''
-
-        col = textColor
 
         tick = Tick()
 
