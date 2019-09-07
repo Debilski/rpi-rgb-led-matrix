@@ -4,6 +4,7 @@ import queue
 import time
 
 import zmq
+from PIL import Image
 
 from rgbmatrix import graphics
 from samplebase import SampleBase
@@ -66,6 +67,24 @@ class FullFlicker(Animation):
             canvas.Clear()
         if tick > 1200:
             return True
+
+class Pacman(Animation):
+    def __init__(self, num_times):
+        self.image = self.image = Image.open('7x7.png').convert('RGB')
+        self.pos = None
+
+    def draw(self, canvas, tick):
+        if self.pos is None:
+            self.pos = canvas.width
+
+        canvas.SetImage(image, -self.pos)
+        canvas.SetImage(image, -self.pos + 32)
+        self.pos -= 1
+        if (self.pos < 0):
+            self.num_times -= 1
+            if self.num_times == 0:
+                return True
+            self.pos = canvas.width
 
 orange = (255, 150, 0)
 pink = (155, 0, 144)
@@ -153,7 +172,7 @@ class Animator(SampleBase):
                     current_animation = animation_queue.get(block=False, timeout=0)
                     tick.reset()
                 except queue.Empty:
-                    pass
+                    current_animation = Pacman(1)
 #               if my_text.startswith('/'):
 #                   if my_text == '/stop':
 #                       my_text = ''
