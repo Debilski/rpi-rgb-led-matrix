@@ -71,15 +71,20 @@ class FullFlicker(Animation):
 class Pacman(Animation):
     def __init__(self, num_times):
         self.image = self.image = Image.open('7x7.png').convert('RGB')
+        self.num_times = num_times
         self.pos = None
+        self.slowdown = 10
 
     def draw(self, canvas, tick):
         if self.pos is None:
             self.pos = canvas.width
 
-        canvas.SetImage(image, -self.pos)
-        canvas.SetImage(image, -self.pos + 32)
-        self.pos -= 1
+        canvas.SetImage(self.image, -self.pos)
+        canvas.SetImage(self.image, -self.pos + 32)
+        if self.slowdown == 0:
+            self.pos -= 1
+            self.slowdown = 10
+        self.slowdown -= 1
         if (self.pos < 0):
             self.num_times -= 1
             if self.num_times == 0:
