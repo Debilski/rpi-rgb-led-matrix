@@ -108,7 +108,7 @@ class Countdown(Animation):
         remainder = 3600 - seconds
         mins = remainder // 60
         secs = remainder % 60
-        text = f'{mins}:{secs}'
+        text = f'{mins:02d}:{secs:02d}'
         l = graphics.DrawText(canvas, self.font, self.pos, 12, self.textColor, text)
         return True
 
