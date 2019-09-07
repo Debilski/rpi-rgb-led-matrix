@@ -91,6 +91,28 @@ class Pacman(Animation):
                 return True
             self.pos = canvas.width
 
+class Countdown(Animation):
+    def __init__(self, color, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.font = graphics.Font()
+        self.font.LoadFont("../../../fonts/6x13.bdf")
+        self.textColor = graphics.Color(*color)
+        self.pos = 1
+
+    def draw(self, canvas, tick):
+        import datetime
+        now = datetime.datetime.now()
+        if now.hour != 16:
+            return True
+        seconds = 60 * now.minute + now.second
+        remainder = 3600 - seconds
+        mins = remainder // 60
+        secs = remainder % 60
+        text = f'{mins}:{secs}'
+        l = graphics.DrawText(canvas, self.font, self.pos, 12, self.textColor, text)
+        return True
+
+
 orange = (255, 150, 0)
 pink = (155, 0, 144)
 yellow = (255, 255, 0)
@@ -177,7 +199,8 @@ class Animator(SampleBase):
                     current_animation = animation_queue.get(block=False, timeout=0)
                     tick.reset()
                 except queue.Empty:
-                    current_animation = Pacman(1)
+                    #current_animation = Pacman(1)
+                    current_animation = Countdown((200, 0, 0))
 #               if my_text.startswith('/'):
 #                   if my_text == '/stop':
 #                       my_text = ''
