@@ -110,6 +110,7 @@ def parse_command(command):
             FullFlicker(),
             RunText(command, pink, 1)
         ]
+    return []
 
 
 class Animator(SampleBase):
@@ -139,6 +140,8 @@ class Animator(SampleBase):
                 my_text = self.socket.recv_json()
                 parsed = parse_command(my_text)
                 try:
+                    if parsed is None:
+                        parsed = []
                     for p in parsed:
                         print(p)
                         animation_queue.put(p)
