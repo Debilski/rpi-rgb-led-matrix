@@ -48,7 +48,7 @@ class RunText(Animation):
     def draw(self, canvas, tick):
         if self.pos is None:
             self.pos = canvas.width
-        l = graphics.DrawText(canvas, self.font, self.pos, 8, self.textColor, self.text)
+        l = graphics.DrawText(canvas, self.font, self.pos, 10, self.textColor, self.text)
         self.pos -= 1
         if (self.pos + l < 0):
             self.num_times -= 1
@@ -85,7 +85,7 @@ class Pacman(Animation):
             self.pos -= 1
             self.slowdown = 10
         self.slowdown -= 1
-        if (self.pos < 0):
+        if (self.pos <= 0):
             self.num_times -= 1
             if self.num_times == 0:
                 return True
@@ -134,27 +134,27 @@ def parse_command(command):
     if 'to group0:' in command:
         return [
             FullFlicker(),
-            RunText(command, green, 1)
+            RunText('group0', green, 1)
         ]
     if 'to group1:' in command:
         return [
             FullFlicker(),
-            RunText(command, blue, 1)
+            RunText('group1', blue, 1)
         ]
     if 'to group2:' in command:
         return [
             FullFlicker(),
-            RunText(command, orange, 1)
+            RunText('group2', orange, 1)
         ]
     if 'to group3:' in command:
         return [
             FullFlicker(),
-            RunText(command, yellow, 1)
+            RunText('group3', yellow, 1)
         ]
     if 'to group4:' in command:
         return [
             FullFlicker(),
-            RunText(command, pink, 1)
+            RunText('group4', pink, 1)
         ]
     return []
 
@@ -179,6 +179,7 @@ class Animator(SampleBase):
         tick = Tick()
 
         current_animation = None
+        default_animation = Pacman(1)
 
         while True:
             socks = dict(self.poller.poll(5))
@@ -199,8 +200,8 @@ class Animator(SampleBase):
                     current_animation = animation_queue.get(block=False, timeout=0)
                     tick.reset()
                 except queue.Empty:
-                    #current_animation = Pacman(1)
-                    current_animation = Countdown((200, 0, 0))
+                    current_animation = Pacman(1)
+                    #current_animation = Countdown((200, 0, 0))
 #               if my_text.startswith('/'):
 #                   if my_text == '/stop':
 #                       my_text = ''
